@@ -22,17 +22,14 @@ def check_page(url: str, words: str, temp_number: int, path_list: list):
     :param words: string that you search
     :param temp_number: number of temp file
     :param path_list: list of paths to save path on
-    :return: Result if string is found, if found returns if the string is marked in html
+    :return: Result if string is found and if the page has marked words and if page has Cyrilic characters
     """
     link_list.append(url)                                               #??
     html_contents = urlopen(url).read()                                 # downloading html page
     string_byte_decoded = html_contents.decode("UTF-8")                 # decoding html page
-
-    # soup = bs(html_contents)
-    # body = soup.body.text.lower()
-    # if regex.search(r'\p{IsCyrillic}', body) is not None:            #searching for Cyrillic words
-    #     body = cyrtranslit.to_latin(body)                             #translating  cyr to latin
-
+    cyr_flag = False
+    if regex.search(r'\p{IsCyrillic}', string_byte_decoded) is not None :
+        cyr_flag = True
     if string_byte_decoded.lower().find(words.lower()) >= 0:             # checking if words exist in text
         marked = True                                                    # setting that word is marked when displayed
         string_to_encode = mark_string(string_byte_decoded, words)
@@ -40,9 +37,9 @@ def check_page(url: str, words: str, temp_number: int, path_list: list):
             marked = False                                            # checking if it is really marked and saving value
         html_contents = string_to_encode.encode()
         path_list.append(save_to_temp(html_contents, temp_number))        # saving html page to temp and saving path
-        return True, marked
+        return True, marked,cyr_flag
     else:
-        return False, None
+        return False, None,cyr_flag
 
 
 def open_file_update_list(list_of_links: list):
@@ -123,8 +120,13 @@ def mark_string (string_for_marking: str, words: str):
     string_for_return = string_for_return.replace(" " + words.upper() + " ", f"<mark>{words.upper()}</mark>")
     return string_for_return
 
-# a, b = check_page(url, "Vučević", 0, list_of_paths)
-# a, b = check_page(url2, "Vučević", 1, list_of_paths)
-# a, b = check_page(url1, "Vučević", 2, list_of_paths)
 
-# webbrowser.open(list_of_paths[0])
+
+
+
+a, b, c = check_page(url, "вучевић", 0, list_of_paths)
+a, b, c= check_page(url2, "vučević", 1, list_of_paths)
+a, b, c= check_page(url1, "vučević", 2, list_of_paths)
+
+webbrowser.open(list_of_paths[0])
+webbrowser.open(list_of_paths[1])
