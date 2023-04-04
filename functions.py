@@ -24,22 +24,31 @@ def check_page(url: str, words: str, temp_number: int, path_list: list):
     :param path_list: list of paths to save path on
     :return: Result if string is found and if the page has marked words and if page has Cyrilic characters
     """
+    match = False
+    marked = True
     link_list.append(url)                                               #??
     html_contents = urlopen(url).read()                                 # downloading html page
     string_byte_decoded = html_contents.decode("UTF-8")                 # decoding html page
-    cyr_flag = False
-    if regex.search(r'\p{IsCyrillic}', string_byte_decoded) is not None :
-        cyr_flag = True
+    cyr_flag = regex.search(r'\p{IsCyrillic}', string_byte_decoded) is not None
     if string_byte_decoded.lower().find(words.lower()) >= 0:             # checking if words exist in text
-        marked = True                                                    # setting that word is marked when displayed
         string_to_encode = mark_string(string_byte_decoded, words)
         if string_to_encode == string_byte_decoded:
             marked = False                                            # checking if it is really marked and saving value
         html_contents = string_to_encode.encode()
         path_list.append(save_to_temp(html_contents, temp_number))        # saving html page to temp and saving path
-        return True, marked,cyr_flag
+        match = True
+        return match, marked, cyr_flag
     else:
-        return False, None,cyr_flag
+        match = False
+        marked = None
+    if cyr_flag :
+        temp_str = cyrtranslit.to_latin(string_byte_decoded)
+        temp_words = cyrtranslit.to_latin(words)
+        if temp_str.lower().find(temp_words.lower()) >= 0 :
+            path_list.append(save_to_temp(html_contents, temp_number))  # saving html page to temp and saving path
+            match = True
+            marked = False
+    return match, marked, cyr_flag
 
 
 def open_file_update_list(list_of_links: list):
@@ -124,9 +133,9 @@ def mark_string (string_for_marking: str, words: str):
 
 
 
-a, b, c = check_page(url, "вучевић", 0, list_of_paths)
-a, b, c= check_page(url2, "vučević", 1, list_of_paths)
-a, b, c= check_page(url1, "vučević", 2, list_of_paths)
-
-webbrowser.open(list_of_paths[0])
-webbrowser.open(list_of_paths[1])
+# a, b, c = check_page(url, "вучевић", 0, list_of_paths)
+# a, b, c = check_page(url2, "vučević", 1, list_of_paths)
+# a, b, c = check_page(url1, "vučević", 2, list_of_paths)
+#
+# webbrowser.open(list_of_paths[0])
+# webbrowser.open(list_of_paths[1])
