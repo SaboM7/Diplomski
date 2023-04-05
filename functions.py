@@ -26,7 +26,7 @@ def check_page(url: str, words: str, temp_number: int, path_list: list):
     """
     match = False
     marked = True
-    link_list.append(url)                                               #??
+    # link_list.append(url)                                               #??
     html_contents = urlopen(url).read()                                 # downloading html page
     string_byte_decoded = html_contents.decode("UTF-8")                 # decoding html page
     cyr_flag = regex.search(r'\p{IsCyrillic}', string_byte_decoded) is not None
@@ -42,10 +42,10 @@ def check_page(url: str, words: str, temp_number: int, path_list: list):
         match = False
         marked = None
     if cyr_flag :
-        temp_str = cyrtranslit.to_latin(string_byte_decoded)
-        temp_words = cyrtranslit.to_latin(words)
+        temp_str = cyrtranslit.to_latin(string_byte_decoded)                # if page has cyr characters convert it to latin
+        temp_words = cyrtranslit.to_latin(words)                            # convert words to latin just to be sure if there is a match
         if temp_str.lower().find(temp_words.lower()) >= 0 :
-            path_list.append(save_to_temp(html_contents, temp_number))  # saving html page to temp and saving path
+            path_list.append(save_to_temp(html_contents, temp_number))      # saving html page to temp and saving path
             match = True
             marked = False
     return match, marked, cyr_flag
@@ -130,7 +130,11 @@ def mark_string (string_for_marking: str, words: str):
     return string_for_return
 
 
-
+# open_file_update_list(link_list)
+# for i,link in enumerate(link_list,0) :
+#     check_page(link,"vučević",i,list_of_paths)
+# for path in list_of_paths :
+#     webbrowser.open(path)
 
 
 # a, b, c = check_page(url, "вучевић", 0, list_of_paths)
