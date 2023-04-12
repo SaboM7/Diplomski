@@ -7,9 +7,9 @@ import base64
 import webbrowser
 import os
 
-link_list = []
-list_of_paths = []
-temp_number = 0
+# link_list = []
+# list_of_paths = []
+# temp_number = 0
 url = "https://www.mod.gov.rs/"
 url1 = "https://www.mod.gov.rs/lat"
 url2 = "https://www.blic.rs/"
@@ -24,32 +24,46 @@ def check_page(url: str, words: str, temp_number: int, path_list: list):
     :param path_list: list of paths to save path on
     :return: Result if string is found and if the page has marked words and if page has Cyrilic characters
     """
-    match = False
+    match = True
     marked = True
     # link_list.append(url)                                               #??
     html_contents = urlopen(url).read()                                 # downloading html page
     string_byte_decoded = html_contents.decode("UTF-8")                 # decoding html page
+
+    if regex.search(r'\p{IsCyrillic}', words) is not None :
+        temp_words = cyrtranslit.to_latin(words)                            # convert words to latin if cyr
+    else:
+        temp_words = cyrtranslit.to_cyrillic(words)                         # convert words to cyr if latin
     cyr_flag = regex.search(r'\p{IsCyrillic}', string_byte_decoded) is not None
-    if string_byte_decoded.lower().find(words.lower()) >= 0:             # checking if words exist in text
-        string_to_encode = mark_string(string_byte_decoded, words)
-        if string_to_encode == string_byte_decoded:
-            marked = False                                            # checking if it is really marked and saving value
-        html_contents = string_to_encode.encode()
-        path_list.append(save_to_temp(html_contents, temp_number))        # saving html page to temp and saving path
-        match = True
+
+    if string_byte_decoded.lower().find(" "+words.lower()) >= 0 :     # checking if words exist in text
+        marked = encoding_saving_marking(string_byte_decoded, words, path_list, temp_number)
+        return match, marked, cyr_flag
+    elif string_byte_decoded.lower().find(" "+temp_words.lower()) >= 0:
+        marked = encoding_saving_marking(string_byte_decoded, words, path_list, temp_number)
         return match, marked, cyr_flag
     else:
         match = False
         marked = None
-    if cyr_flag :
-        temp_str = cyrtranslit.to_latin(string_byte_decoded)                # if page has cyr characters convert it to latin
-        temp_words = cyrtranslit.to_latin(words)                            # convert words to latin just to be sure if there is a match
-        if temp_str.lower().find(temp_words.lower()) >= 0 :
-            path_list.append(save_to_temp(html_contents, temp_number))      # saving html page to temp and saving path
-            match = True
-            marked = False
-    return match, marked, cyr_flag
+        return match, marked, cyr_flag
 
+
+def encoding_saving_marking(string_to_encode_: str, words: str, path_list: list, temp_number: int):
+    """
+    Reduces code repetition in my functions.
+    :param string_to_encode_: String to encode
+    :param words: String to mark
+    :param path_list: List of paths to temp pages
+    :param temp_number: Number of temp page
+    :return: True if words are marked, false if not
+    """
+    marked = True
+    string_to_encode = mark_string(string_to_encode_, words)
+    if string_to_encode == string_to_encode_:
+        marked = False                                          # checking if it is really marked and saving value
+    html_contents = string_to_encode.encode()
+    path_list.append(save_to_temp(html_contents, temp_number))  # saving html page to temp and saving path
+    return marked
 
 def open_file_update_list(list_of_links: list):
     """
@@ -79,9 +93,11 @@ def save_links(list_of_links):
     except FileExistsError:
         pass
     finally:
-        f = open("links.txt", "w+")
+        f = open("links.txt", "w")
         for link in list_of_links:
-            f.writelines(link)
+            if not link.endswith("\n"):
+                link = link +"\n"
+            f.write(link)
         f.close()
 
 
@@ -123,19 +139,27 @@ def mark_string (string_for_marking: str, words: str):
     :param words: String to mark.
     :return: Marked string.
     """
-    string_for_return = string_for_marking.replace(" " + words + " ", f"<mark>{words}</mark>")  # marking words
-    string_for_return = string_for_return.replace(" " + words.capitalize() + " ", f"<mark>{words.capitalize()}</mark>")
-    string_for_return = string_for_return.replace(" " + words.lower() + " ", f"<mark>{words.lower()}</mark>")
-    string_for_return = string_for_return.replace(" " + words.upper() + " ", f"<mark>{words.upper()}</mark>")
+    string_for_return = string_for_marking.replace(" " + words + " ", f" <mark>{words}</mark> ")  # marking words
+    string_for_return = string_for_return.replace(" " + words.capitalize() + " ", f" <mark>{words.capitalize()}</mark> ")
+    string_for_return = string_for_return.replace(" " + words.lower() + " ", f" <mark>{words.lower()}</mark> ")
+    string_for_return = string_for_return.replace(" " + words.upper() + " ", f" <mark>{words.upper()}</mark> ")
     return string_for_return
 
 
+# print(getting_time())
 # open_file_update_list(link_list)
 # for i,link in enumerate(link_list,0) :
-#     check_page(link,"vučević",i,list_of_paths)
+#     a,b,c= check_page(link,"dačić",len(list_of_paths),list_of_paths)
+#     print(f"{a} {b} {c}")
 # for path in list_of_paths :
 #     webbrowser.open(path)
+#
+# save_links(link_list)
 
+# html_contents = urlopen("https://www.mfa.gov.rs/").read()
+# with open("test.html", 'wb') as f:  # opening file
+#     f.write(html_contents)
+# webbrowser.open("test.html")
 
 # a, b, c = check_page(url, "вучевић", 0, list_of_paths)
 # a, b, c = check_page(url2, "vučević", 1, list_of_paths)
