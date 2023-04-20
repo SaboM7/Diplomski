@@ -7,9 +7,9 @@ import base64
 import webbrowser
 import os
 
-# link_list = []
-# list_of_paths = []
-# temp_number = 0
+link_list = []
+list_of_paths = []
+temp_number = 0
 url = "https://www.mod.gov.rs/"
 url1 = "https://www.mod.gov.rs/lat"
 url2 = "https://www.blic.rs/"
@@ -25,7 +25,6 @@ def check_page(url: str, words: str, temp_number: int, path_list: list):
     :return: Result if string is found and if the page has marked words and if page has Cyrilic characters
     """
     match = True
-    marked = True
     # link_list.append(url)                                               #??
     html_contents = urlopen(url).read()                                 # downloading html page
     string_byte_decoded = html_contents.decode("UTF-8")                 # decoding html page
@@ -40,7 +39,7 @@ def check_page(url: str, words: str, temp_number: int, path_list: list):
         marked = encoding_saving_marking(string_byte_decoded, words, path_list, temp_number)
         return match, marked, cyr_flag
     elif string_byte_decoded.lower().find(" "+temp_words.lower()) >= 0:
-        marked = encoding_saving_marking(string_byte_decoded, words, path_list, temp_number)
+        marked = encoding_saving_marking(string_byte_decoded, temp_words, path_list, temp_number)
         return match, marked, cyr_flag
     else:
         match = False
@@ -146,15 +145,15 @@ def mark_string (string_for_marking: str, words: str):
     return string_for_return
 
 
-# print(getting_time())
-# open_file_update_list(link_list)
-# for i,link in enumerate(link_list,0) :
-#     a,b,c= check_page(link,"dačić",len(list_of_paths),list_of_paths)
-#     print(f"{a} {b} {c}")
-# for path in list_of_paths :
-#     webbrowser.open(path)
-#
-# save_links(link_list)
+print(getting_time())
+open_file_update_list(link_list)
+for i,link in enumerate(link_list,0) :
+    a,b,c= check_page(link,"vučević",len(list_of_paths),list_of_paths)
+    print(f"{a} {b} {c}")
+for path in list_of_paths :
+    webbrowser.open(path)
+
+save_links(link_list)
 
 # html_contents = urlopen("https://www.mfa.gov.rs/").read()
 # with open("test.html", 'wb') as f:  # opening file
