@@ -1,4 +1,6 @@
 from urllib.request import urlopen
+from urllib.request import Request
+from pathlib import Path
 from bs4 import BeautifulSoup as bs
 import cyrtranslit
 import regex
@@ -26,7 +28,8 @@ def check_page(url: str, words: str, temp_number: int, path_list: list):
     """
     match = True
     # link_list.append(url)                                               #??
-    html_contents = urlopen(url).read()                                 # downloading html page
+    req = Request(url, headers={'User-Agent': "Magic Browser"})
+    html_contents = urlopen(req).read()
     string_byte_decoded = html_contents.decode("UTF-8")                 # decoding html page
 
     if regex.search(r'\p{IsCyrillic}', words) is not None :
@@ -71,11 +74,12 @@ def open_file_update_list(list_of_links: list):
     :return: Nothing.
     """
     try:
-        open("links.txt", "x")
+        path = Path(__file__).parent / "links.txt"
+        open(path, "x")                                     # creating file if it doesnt exist
     except FileExistsError:
         pass
     finally:
-        f = open("links.txt", "r+")
+        f = open(path, "r+")
         for link in f:
             list_of_links.append(link)
         f.close()
@@ -88,11 +92,12 @@ def save_links(list_of_links):
     :return: Nothing.
     """
     try:
-        open("links.txt", "x")                          # creating txt file to save links to
+        path = Path(__file__).parent / "links.txt"
+        open(path, "x")                         # creating txt file to save links to
     except FileExistsError:
         pass
     finally:
-        f = open("links.txt", "w")
+        f = open(path, "w")
         for link in list_of_links:
             if not link.endswith("\n"):
                 link = link +"\n"
@@ -145,17 +150,19 @@ def mark_string (string_for_marking: str, words: str):
     return string_for_return
 
 
-print(getting_time())
-open_file_update_list(link_list)
-for i,link in enumerate(link_list,0) :
-    a,b,c= check_page(link,"vučević",len(list_of_paths),list_of_paths)
-    print(f"{a} {b} {c}")
-for path in list_of_paths :
-    webbrowser.open(path)
+# print(getting_time())
+# open_file_update_list(link_list)
+# for i,link in enumerate(link_list,0) :
+#     a,b,c= check_page(link,"vučević",len(list_of_paths),list_of_paths)
+#     print(f"{a} {b} {c}")
+# for path in list_of_paths :
+#     webbrowser.open(path)
+#
+# save_links(link_list)
 
-save_links(link_list)
-
-# html_contents = urlopen("https://www.mfa.gov.rs/").read()
+# req = Request("https://www.politika.rs/sr", headers={'User-Agent' : "Magic Browser"})
+# html_contents = urlopen( req )
+# html_contents = urlopen("https://www.politika.rs/sr").read()
 # with open("test.html", 'wb') as f:  # opening file
 #     f.write(html_contents)
 # webbrowser.open("test.html")
