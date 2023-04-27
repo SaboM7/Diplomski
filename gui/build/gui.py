@@ -7,7 +7,8 @@ from pathlib import Path
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Checkbutton, IntVar
+import tksheet
+from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Checkbutton, IntVar, Toplevel, Label
 
 
 OUTPUT_PATH = Path(__file__).parent
@@ -16,8 +17,6 @@ ASSETS_PATH = OUTPUT_PATH / Path(r"D:\Skola\Diplomski\gui\build\assets\frame0")
 
 def relative_to_assets(path: str) -> Path:
     return ASSETS_PATH / Path(path)
-
-
 
 
 window = Tk()
@@ -76,6 +75,8 @@ canvas.create_text(
 )
 
 list_papers = ["Blic","Alo","Danas", "Nova", "N1","Politika"]
+link_dict = {"Blic":"https://www.blic.rs/","Alo": "https://www.alo.rs/", "Danas": "https://www.danas.rs/" ,
+             "Nova": "https://nova.rs/", "N1":"https://n1info.rs/","Politika":"https://www.politika.rs/scc"}
 selected = {}
 for index,paper in enumerate(list_papers):
     selected[paper] = IntVar()
@@ -83,17 +84,32 @@ for index,paper in enumerate(list_papers):
         text=paper,
         variable=selected[paper],
         bd=0,
-        bg="#454642",
         anchor="w",
-        fg="#FFFFFF",
-        font = ("Inter Light", 20 * -1),
-        activebackground= "#454642")
+        font=("Inter Light", 20 * -1),
+        bg='#454642',
+        fg='white',
+        activebackground='#454642',
+        activeforeground='white',
+        selectcolor="#454642")
 
     l.place(
         x=70.0,
         y=210.0 + float(index)*30,
         width=100.0,
         height=30.0)
+
+def check_if_selected_chbox(list_papers:list,selected : dict):
+    list_to_search = []
+    for paper in list_papers:
+        if selected[paper].get() :
+            list_to_search.append(link_dict[paper])
+    return list_to_search
+
+def load_links():
+    link_list_for_textarea = []
+    open_file_update_list(link_list_for_textarea)
+    for index, link in enumerate(link_list_for_textarea, 1):
+        entry_2.insert(str(index) + ".0", link)
 
 canvas.create_text(
     73.0,
@@ -130,7 +146,6 @@ entry_bg_2 = canvas.create_image(
     image=entry_image_2
 )
 # TextField
-open_file_update_list(link_list)
 entry_2 = Text(
     bd=0,
     bg="#D9D9D9",
@@ -138,14 +153,193 @@ entry_2 = Text(
     highlightthickness=0,
     font = ("Inter Light", 18 * -1)
 )
-for index, link in enumerate(link_list, 1):
-    entry_2.insert(str(index) + ".0", link)
+load_links()                                    #loading links in text field
+
 entry_2.place(
     x=556.0,
     y=174.0,
     width=436.0,
     height=228.0
 )
+def bool_to_text(value:bool):
+    if value:
+        text = "Da"
+    else:
+        text = "Ne"
+    return text
+
+def search_sites():
+    list_to_check= check_if_selected_chbox(list_papers,selected)
+    for link in entry_2.get("1.0", "end").splitlines():
+        if link != ""  and link not in list_to_check:
+            list_to_check.append(link)
+    words = entry_1.get()
+    list_of_paths = []
+    list_of_finds = []
+    list_of_marks = []
+    list_of_Cyrilic = []
+    list_of_lists = [list_to_check,list_of_finds,list_of_marks,list_of_Cyrilic]
+    if words != "" and len(list_to_check)>0 :
+        for i, link in enumerate(list_to_check, 0):
+            found,marked,isCyrilic= check_page(link,words,i,list_of_paths)
+            if link:
+                text = "Da"
+            else:
+                text = "Ne"
+            list_of_finds.append(bool_to_text(found))
+            list_of_marks.append(bool_to_text(marked))
+            list_of_Cyrilic.append(bool_to_text(isCyrilic))
+            print(f"{found} {marked} {isCyrilic}")
+        for path in list_of_paths :
+            webbrowser.open(path)
+        new_window = Toplevel(
+            window,
+            bg = "#444642",
+            height = 511,
+            width = 1058,
+            bd = 0,
+            highlightthickness = 0,
+            relief = "ridge"
+        )
+        new_window.resizable(False, False)
+        new_window.title("Rezultat")
+
+        sheet = tksheet.Sheet(new_window)
+        sheet.set_sheet_data([[item[index] for item in list_of_lists] for index in range(len(list_to_check))])
+        sheet.column_width(column=0,width=200)
+        sheet.column_width(column=1, width=100)
+        sheet.column_width(column=2, width=100)
+        sheet.column_width(column=3, width=130)
+        sheet.headers(["Linkovi","Postoji tekst","Označen tekst", "Stranica ima ćirilicu"])
+        sheet.enable_bindings(
+            (
+                "single_select",
+                "row_select",
+                "column_width_resize",
+                "arrowkeys",
+                "right_click_popup_menu",
+                "rc_select",
+                "copy",
+                "cut",
+                "paste"
+            )
+        )
+        sheet.highlight_columns(1,"yellow","red")
+        sheet.place(
+            x=48.0,
+            y=100.0,
+            height =45 + len(list_to_check)*20.0,
+            width = 580.0
+        )
+        add_predefined_labels(new_window,words)
+    # add_label_to_window(list_to_check,new_window,48.0)
+    # add_label_to_window(list_of_finds,new_window,400.0)
+    # add_label_to_window(list_of_marks,new_window,550.0)
+    # add_label_to_window(list_of_Cyrilic,new_window,700.0)
+
+def add_predefined_labels(new_window,words):
+    l1 = Label(
+        new_window,
+        text='Traženi tekst: ' + words,
+        bd=0,
+        anchor="w",
+        font=("Inter Light", 25 * -1),
+        bg='#454642',
+        fg='yellow',
+        activebackground='#454642',
+        activeforeground='white'
+    )
+    l1.place(
+        x=70.0,
+        y=30.0,
+    )
+    # l1 = Label(
+    #     new_window,
+    #     text='Linkovi:',
+    #     bd=0,
+    #     anchor="w",
+    #     font=("Inter Light", 20 * -1),
+    #     bg='#454642',
+    #     fg='#447ED5',
+    #     activebackground='#454642',
+    #     activeforeground='white'
+    # )
+    # l1.place(
+    #     x=70.0,
+    #     y=70.0,
+    # )
+    # l1 = Label(
+    #     new_window,
+    #     text='Nadjeni tekst:',
+    #     bd=0,
+    #     anchor="w",
+    #     font=("Inter Light", 20 * -1),
+    #     bg='#454642',
+    #     fg='#447ED5',
+    #     activebackground='#454642',
+    #     activeforeground='white'
+    # )
+    # l1.place(
+    #     x=400.0,
+    #     y=70.0,
+    # )
+    # l1 = Label(
+    #     new_window,
+    #     text='Označen tekst:',
+    #     bd=0,
+    #     anchor="w",
+    #     font=("Inter Light", 20 * -1),
+    #     bg='#454642',
+    #     fg='#447ED5',
+    #     activebackground='#454642',
+    #     activeforeground='white'
+    # )
+    # l1.place(
+    #     x=550.0,
+    #     y=70.0,
+    # )
+    # l1 = Label(
+    #     new_window,
+    #     text='Stranica ima ćirilicu:',
+    #     bd=0,
+    #     anchor="w",
+    #     font=("Inter Light", 20 * -1),
+    #     bg='#454642',
+    #     fg='#447ED5',
+    #     activebackground='#454642',
+    #     activeforeground='white'
+    # )
+    # l1.place(
+    #     x=700.0,
+    #     y=70.0,
+    # )
+
+def add_label_to_window(list_to_check:list,new_window,x_value:float):
+    for index,link in enumerate(list_to_check,0):
+        if type(link) == bool:
+            if link:
+                text= "Da"
+            else:
+                text = "Ne"
+        else:
+            text = str(index + 1) + ". " + str(link)
+        l1 = Label(
+            new_window,
+            text=text,
+            bd=0,
+            anchor="w",
+            font=("Inter Light", 20 * -1),
+            bg='#454642',
+            fg='white',
+            activebackground='#454642',
+            activeforeground='white'
+        )
+        l1.place(
+            x=x_value,
+            y=100.0+ float(index)*30,
+        )
+
+
 # Pretraži
 button_image_1 = PhotoImage(
     file=relative_to_assets("button_1.png"))
@@ -153,7 +347,7 @@ button_1 = Button(
     image=button_image_1,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_1 clicked"), # dodati moju funkciju za check_page
+    command=search_sites,                       # dodati moju funkciju za check_page
     relief="flat"
 )
 button_1.place(
@@ -169,7 +363,7 @@ button_2 = Button(
     image=button_image_2,
     borderwidth=0,
     highlightthickness=0,
-    command=lambda: print("button_2 clicked"),    # dugme za linkove
+    command=load_links,    # dugme za linkove
     relief="flat"
 )
 button_2.place(

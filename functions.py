@@ -46,7 +46,7 @@ def check_page(url: str, words: str, temp_number: int, path_list: list):
         return match, marked, cyr_flag
     else:
         match = False
-        marked = None
+        marked = False
         return match, marked, cyr_flag
 
 
