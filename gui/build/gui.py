@@ -182,16 +182,11 @@ def search_sites():
     if words != "" and len(list_to_check)>0 :
         for i, link in enumerate(list_to_check, 0):
             found,marked,isCyrilic= check_page(link,words,i,list_of_paths)
-            if link:
-                text = "Da"
-            else:
-                text = "Ne"
             list_of_finds.append(bool_to_text(found))
             list_of_marks.append(bool_to_text(marked))
             list_of_Cyrilic.append(bool_to_text(isCyrilic))
-            print(f"{found} {marked} {isCyrilic}")
-        for path in list_of_paths :
-            webbrowser.open(path)
+        # for path in list_of_paths :
+        #     webbrowser.open(path)
         new_window = Toplevel(
             window,
             bg = "#444642",
@@ -201,10 +196,9 @@ def search_sites():
             highlightthickness = 0,
             relief = "ridge"
         )
-        new_window.resizable(False, False)
         new_window.title("Rezultat")
 
-        sheet = tksheet.Sheet(new_window)
+        sheet = tksheet.Sheet(new_window,width=580)
         sheet.set_sheet_data([[item[index] for item in list_of_lists] for index in range(len(list_to_check))])
         sheet.column_width(column=0,width=200)
         sheet.column_width(column=1, width=100)
@@ -228,14 +222,30 @@ def search_sites():
         sheet.place(
             x=48.0,
             y=100.0,
-            height =45 + len(list_to_check)*20.0,
+            height =45 + len(list_to_check)*24.0,
             width = 580.0
         )
         add_predefined_labels(new_window,words)
-    # add_label_to_window(list_to_check,new_window,48.0)
-    # add_label_to_window(list_of_finds,new_window,400.0)
-    # add_label_to_window(list_of_marks,new_window,550.0)
-    # add_label_to_window(list_of_Cyrilic,new_window,700.0)
+        # add_label_to_window(list_to_check,new_window,48.0)
+        # add_label_to_window(list_of_finds,new_window,400.0)
+        # add_label_to_window(list_of_marks,new_window,550.0)
+        # add_label_to_window(list_of_Cyrilic,new_window,700.0)
+        for i  in range(len(list_to_check)):
+            #ubaciti generisanje funkcije za otvaranje tog tempa
+            button_temp = Button(
+                text = "Otvori",
+                master= new_window,
+                borderwidth=0,
+                highlightthickness=0,
+                #command=search_sites,  # dodati moju funkciju za check_page
+                relief="flat"
+            )
+            button_temp.place(
+                x=640.0,
+                y=125.0 + i*23.0,
+                width=100.0,
+                height=20.0
+            )
 
 def add_predefined_labels(new_window,words):
     l1 = Label(
@@ -253,66 +263,22 @@ def add_predefined_labels(new_window,words):
         x=70.0,
         y=30.0,
     )
-    # l1 = Label(
-    #     new_window,
-    #     text='Linkovi:',
-    #     bd=0,
-    #     anchor="w",
-    #     font=("Inter Light", 20 * -1),
-    #     bg='#454642',
-    #     fg='#447ED5',
-    #     activebackground='#454642',
-    #     activeforeground='white'
-    # )
-    # l1.place(
-    #     x=70.0,
-    #     y=70.0,
-    # )
-    # l1 = Label(
-    #     new_window,
-    #     text='Nadjeni tekst:',
-    #     bd=0,
-    #     anchor="w",
-    #     font=("Inter Light", 20 * -1),
-    #     bg='#454642',
-    #     fg='#447ED5',
-    #     activebackground='#454642',
-    #     activeforeground='white'
-    # )
-    # l1.place(
-    #     x=400.0,
-    #     y=70.0,
-    # )
-    # l1 = Label(
-    #     new_window,
-    #     text='Označen tekst:',
-    #     bd=0,
-    #     anchor="w",
-    #     font=("Inter Light", 20 * -1),
-    #     bg='#454642',
-    #     fg='#447ED5',
-    #     activebackground='#454642',
-    #     activeforeground='white'
-    # )
-    # l1.place(
-    #     x=550.0,
-    #     y=70.0,
-    # )
-    # l1 = Label(
-    #     new_window,
-    #     text='Stranica ima ćirilicu:',
-    #     bd=0,
-    #     anchor="w",
-    #     font=("Inter Light", 20 * -1),
-    #     bg='#454642',
-    #     fg='#447ED5',
-    #     activebackground='#454642',
-    #     activeforeground='white'
-    # )
-    # l1.place(
-    #     x=700.0,
-    #     y=70.0,
-    # )
+    l1 = Label(
+        new_window,
+        text='Otvori skinutu stranicu: ',
+        bd=0,
+        anchor="w",
+        font=("Inter Light", 15 * -1),
+        bg='#454642',
+        fg='orange',
+        activebackground='#454642',
+        activeforeground='white'
+    )
+    l1.place(
+        x=640.0,
+        y=70.0,
+    )
+
 
 def add_label_to_window(list_to_check:list,new_window,x_value:float):
     for index,link in enumerate(list_to_check,0):

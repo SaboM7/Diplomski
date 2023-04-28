@@ -47,6 +47,7 @@ def check_page(url: str, words: str, temp_number: int, path_list: list):
     else:
         match = False
         marked = False
+        path_list.append(save_to_temp(html_contents, temp_number))
         return match, marked, cyr_flag
 
 
@@ -124,16 +125,17 @@ def save_to_temp(html_contents: bytes, temp_num):
     :return: Path to them file that page is saved to.
     """
     try:
-        os.mkdir("tmp")                                     # making temp directory if it doesnt exist
+        path = Path(__file__).parent
+        os.mkdir(path/"tmp")                                     # making temp directory if it doesnt exist
     except FileExistsError:
         pass
     finally:
-        os.chdir("tmp")
-        path = os.path.abspath(f"temp{temp_num}.html")      # creating path
+        os.chdir(path/"tmp")
+        file_path = os.path.abspath(f"temp{temp_num}.html")      # creating path
         os.chdir("..")
-        with open(path, 'wb') as f:                         # opening file
+        with open(file_path, 'wb') as f:                         # opening file
             f.write(html_contents)                          # saving page to file
-        return path
+        return file_path
 
 
 def mark_string (string_for_marking: str, words: str):
