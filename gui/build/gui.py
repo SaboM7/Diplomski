@@ -91,7 +91,6 @@ for index,paper in enumerate(list_papers):
         activebackground='#454642',
         activeforeground='white',
         selectcolor="#454642")
-
     l.place(
         x=70.0,
         y=210.0 + float(index)*30,
@@ -168,84 +167,137 @@ def bool_to_text(value:bool):
         text = "Ne"
     return text
 
+
 def search_sites():
     list_to_check= check_if_selected_chbox(list_papers,selected)
     for link in entry_2.get("1.0", "end").splitlines():
         if link != ""  and link not in list_to_check:
             list_to_check.append(link)
     words = entry_1.get()
+    if words != "" and len(list_to_check)>0 :
+        checking_links_making_window(list_to_check,words)
+        # list_of_paths = []
+        # list_of_finds = []
+        # list_of_marks = []
+        # list_of_Cyrilic = []
+        # list_of_lists = [list_to_check, list_of_finds, list_of_marks, list_of_Cyrilic]
+        # for i, link in enumerate(list_to_check, 0):
+        #     found,marked,isCyrilic= check_page(link,words,i,list_of_paths)
+        #     list_of_finds.append(bool_to_text(found))
+        #     list_of_marks.append(bool_to_text(marked))
+        #     list_of_Cyrilic.append(bool_to_text(isCyrilic))
+        # new_window = Toplevel(
+        #     window,
+        #     bg = "#444642",
+        #     height = 511,
+        #     width = 1058,
+        #     bd = 0,
+        #     highlightthickness = 0,
+        #     relief = "ridge"
+        # )
+        # new_window.title("Rezultat")
+        #
+        # sheet = tksheet.Sheet(new_window,width=580)
+        # sheet.set_sheet_data([[item[index] for item in list_of_lists] for index in range(len(list_to_check))])
+        # sheet.column_width(column=0,width=200)
+        # sheet.column_width(column=1, width=100)
+        # sheet.column_width(column=2, width=100)
+        # sheet.column_width(column=3, width=130)
+        # sheet.headers(["Linkovi","Postoji tekst","Označen tekst", "Stranica ima ćirilicu"])
+        # sheet.enable_bindings(
+        #     (
+        #         "single_select",
+        #         "row_select",
+        #         "column_width_resize",
+        #         "arrowkeys",
+        #         "right_click_popup_menu",
+        #         "rc_select",
+        #         "copy",
+        #         "cut",
+        #         "paste"
+        #     )
+        # )
+        # sheet.highlight_columns(1,"yellow","red")
+        # sheet.place(
+        #     x=48.0,
+        #     y=100.0,
+        #     height =45 + len(list_to_check)*24.0,
+        #     width = 580.0
+        # )
+        # add_predefined_labels(new_window,words)
+        # add_buttons_to_window(list_of_paths,new_window,640.0)
+        # add_buttons_to_window(list_to_check,new_window,820.0)
+
+def checking_links_making_window(list_to_check:list,words:str):
     list_of_paths = []
     list_of_finds = []
     list_of_marks = []
     list_of_Cyrilic = []
-    list_of_lists = [list_to_check,list_of_finds,list_of_marks,list_of_Cyrilic]
-    if words != "" and len(list_to_check)>0 :
-        for i, link in enumerate(list_to_check, 0):
-            found,marked,isCyrilic= check_page(link,words,i,list_of_paths)
-            list_of_finds.append(bool_to_text(found))
-            list_of_marks.append(bool_to_text(marked))
-            list_of_Cyrilic.append(bool_to_text(isCyrilic))
-        # for path in list_of_paths :
-        #     webbrowser.open(path)
-        new_window = Toplevel(
-            window,
-            bg = "#444642",
-            height = 511,
-            width = 1058,
-            bd = 0,
-            highlightthickness = 0,
-            relief = "ridge"
-        )
-        new_window.title("Rezultat")
+    list_of_lists = [list_to_check, list_of_finds, list_of_marks, list_of_Cyrilic]
+    for i, link in enumerate(list_to_check, 0):
+        found, marked, isCyrilic = check_page(link, words, i, list_of_paths)
+        list_of_finds.append(bool_to_text(found))
+        list_of_marks.append(bool_to_text(marked))
+        list_of_Cyrilic.append(bool_to_text(isCyrilic))
+    new_window = Toplevel(
+        window,
+        bg="#444642",
+        height=511,
+        width=1058,
+        bd=0,
+        highlightthickness=0,
+        relief="ridge"
+    )
+    new_window.title("Rezultat")
 
-        sheet = tksheet.Sheet(new_window,width=580)
-        sheet.set_sheet_data([[item[index] for item in list_of_lists] for index in range(len(list_to_check))])
-        sheet.column_width(column=0,width=200)
-        sheet.column_width(column=1, width=100)
-        sheet.column_width(column=2, width=100)
-        sheet.column_width(column=3, width=130)
-        sheet.headers(["Linkovi","Postoji tekst","Označen tekst", "Stranica ima ćirilicu"])
-        sheet.enable_bindings(
-            (
-                "single_select",
-                "row_select",
-                "column_width_resize",
-                "arrowkeys",
-                "right_click_popup_menu",
-                "rc_select",
-                "copy",
-                "cut",
-                "paste"
-            )
+    sheet = tksheet.Sheet(new_window, width=580)
+    sheet.set_sheet_data([[item[index] for item in list_of_lists] for index in range(len(list_to_check))])
+    sheet.column_width(column=0, width=200)
+    sheet.column_width(column=1, width=100)
+    sheet.column_width(column=2, width=100)
+    sheet.column_width(column=3, width=130)
+    sheet.headers(["Linkovi", "Postoji tekst", "Označen tekst", "Stranica ima ćirilicu"])
+    sheet.enable_bindings(
+        (
+            "single_select",
+            "row_select",
+            "column_width_resize",
+            "arrowkeys",
+            "right_click_popup_menu",
+            "rc_select",
+            "copy",
+            "cut",
+            "paste"
         )
-        sheet.highlight_columns(1,"yellow","red")
-        sheet.place(
-            x=48.0,
-            y=100.0,
-            height =45 + len(list_to_check)*24.0,
-            width = 580.0
+    )
+    sheet.highlight_columns(1, "yellow", "red")
+    sheet.place(
+        x=48.0,
+        y=100.0,
+        height=45 + len(list_to_check) * 24.0,
+        width=580.0
+    )
+    add_predefined_labels(new_window, words)
+    add_buttons_to_window(list_of_paths, new_window, 640.0)
+    add_buttons_to_window(list_to_check, new_window, 820.0)
+
+
+def add_buttons_to_window(list_to_make_buttons: list,master_window,x_position: float):
+    for index, link in enumerate(list_to_make_buttons,0):
+        button_temp = Button(
+            text="Otvori",
+            master=master_window,
+            borderwidth=0,
+            highlightthickness=0,
+            command=lambda link=link: webbrowser.open(link),
+            relief="flat"
         )
-        add_predefined_labels(new_window,words)
-        # add_label_to_window(list_to_check,new_window,48.0)
-        # add_label_to_window(list_of_finds,new_window,400.0)
-        # add_label_to_window(list_of_marks,new_window,550.0)
-        # add_label_to_window(list_of_Cyrilic,new_window,700.0)
-        for i  in range(len(list_to_check)):
-            #ubaciti generisanje funkcije za otvaranje tog tempa
-            button_temp = Button(
-                text = "Otvori",
-                master= new_window,
-                borderwidth=0,
-                highlightthickness=0,
-                #command=search_sites,  # dodati moju funkciju za check_page
-                relief="flat"
-            )
-            button_temp.place(
-                x=640.0,
-                y=125.0 + i*23.0,
-                width=100.0,
-                height=20.0
-            )
+        button_temp.place(
+            x=x_position,
+            y=125.0 + index * 23.0,
+            width=100.0,
+            height=20.0
+        )
 
 def add_predefined_labels(new_window,words):
     l1 = Label(
@@ -276,6 +328,21 @@ def add_predefined_labels(new_window,words):
     )
     l1.place(
         x=640.0,
+        y=70.0,
+    )
+    l1 = Label(
+        new_window,
+        text='Otvori stranicu sa interneta: ',
+        bd=0,
+        anchor="w",
+        font=("Inter Light", 15 * -1),
+        bg='#454642',
+        fg='green',
+        activebackground='#454642',
+        activeforeground='white'
+    )
+    l1.place(
+        x=820.0,
         y=70.0,
     )
 
