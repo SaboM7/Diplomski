@@ -8,13 +8,34 @@ from datetime import datetime
 import base64
 import webbrowser
 import os
+from functions import *
+from pathlib import Path
+import tksheet
+from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Checkbutton, IntVar, Toplevel, Label, messagebox
+
+OUTPUT_PATH = Path(__file__).parent
+ASSETS_PATH = OUTPUT_PATH / Path(r"D:\Skola\Diplomski\gui\build\assets\frame0")
 
 link_list = []
 list_of_paths = []
 temp_number = 0
-url = "https://www.mod.gov.rs/"
-url1 = "https://www.mod.gov.rs/lat"
-url2 = "https://www.blic.rs/"
+
+
+def bool_to_text(value:bool):
+    """
+    Turning boolean values into text for display.
+    :param value: Value to display
+    :return: Text to display
+    """
+    if value:
+        text = "Da"
+    else:
+        text = "Ne"
+    return text
+
+
+def relative_to_assets(path: str) -> Path:
+    return ASSETS_PATH / Path(path)
 
 
 def check_page(url: str, words: str, temp_number: int, path_list: list):
