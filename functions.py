@@ -8,6 +8,8 @@ import os
 from pathlib import Path
 import tksheet
 from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage, Checkbutton, IntVar, Toplevel, Label, messagebox
+from tkinter.ttk import Progressbar
+
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"D:\Skola\Diplomski\gui\build\assets\frame0")
@@ -179,6 +181,28 @@ def checking_links_making_window(list_to_check: list, words: str, main_window):
     :return: None
     """
     start_time = getting_time()
+    step = int(100 / len(list_to_check))
+    l1 = Label(
+        main_window,
+        text='Pretraživanje...',
+        bd=0,
+        anchor="w",
+        font=("Inter Light", 15 * -1),
+        bg='#454642',
+        fg='white',
+        activebackground='#454642',
+        activeforeground='white'
+    )
+    l1.place(
+        x=70.0,
+        y=420.0,
+    )
+
+    p = Progressbar(main_window, orient="horizontal", length=200, mode="determinate", takefocus=True, maximum=100)
+    p.place(
+        x=70.0,
+        y=450.0
+    )
     # initializing lists to be used
     list_of_paths = []                                                # list to store paths from downloaded pages
     list_of_finds = []                                                # list to store if search is successful
@@ -192,6 +216,8 @@ def checking_links_making_window(list_to_check: list, words: str, main_window):
         list_of_finds.append(bool_to_text(found))
         list_of_marks.append(bool_to_text(marked))
         list_of_Cyrilic.append(bool_to_text(isCyrilic))
+        p.step(step)
+        p.update()
 
     # making new window to display results of search
     new_window = Toplevel(
@@ -234,6 +260,8 @@ def checking_links_making_window(list_to_check: list, words: str, main_window):
     add_predefined_labels(new_window, words, start_time)             # adding labels that are necessary to window
     add_buttons_to_window(list_of_paths, new_window, 640.0)         # adding buttons for opening downloaded pages
     add_buttons_to_window(list_to_check, new_window, 820.0)         # adding buttons for opening pages on web
+    l1.destroy()
+    p.destroy()
 
 
 def add_buttons_to_window(list_to_make_buttons: list, master_window, x_position: float):
