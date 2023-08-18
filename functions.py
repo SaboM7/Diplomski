@@ -257,11 +257,12 @@ def checking_links_making_window(list_to_check: list, words: str, main_window):
         height=45 + len(list_to_check) * 24.0,
         width=580.0
     )
+    l1.destroy()
+    p.destroy()
     add_predefined_labels(new_window, words, start_time)             # adding labels that are necessary to window
     add_buttons_to_window(list_of_paths, new_window, 640.0)         # adding buttons for opening downloaded pages
     add_buttons_to_window(list_to_check, new_window, 820.0)         # adding buttons for opening pages on web
-    l1.destroy()
-    p.destroy()
+
 
 
 def add_buttons_to_window(list_to_make_buttons: list, master_window, x_position: float):
